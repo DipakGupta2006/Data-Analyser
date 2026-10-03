@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f8fbf8">
+    <title>{{ dataset.name }} report | Data Analyser</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #173b38;
+            --muted: #6d817d;
+            --paper: #f8fbf8;
+            --white: #fff;
+            --green: #176d5b;
+            --green-dark: #105246;
+            --mint: #eaf5ee;
+            --lime: #d8f05c;
+            --coral: #ff826a;
+            --line: #e6eeea;
+            --soft-line: #eff3f0;
+            --shadow: 0 14px 35px rgba(37, 83, 69, .07);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 22px;
+            scrollbar-gutter: stable;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .wrap {
+            width: min(1160px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            z-index: 10;
+            top: 0;
+            height: 76px;
+            border-bottom: 1px solid rgba(230, 238, 234, .85);
+            background: rgba(248, 251, 248, .94);
+            backdrop-filter: blur(14px);
+        }
+
+        .nav {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 35px;
+            height: 35px;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--green);
+            color: white;
+        }
+
+        .brand-mark svg {
+            width: 21px;
+            height: 21px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            color: #55706a;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .nav-links a:hover,
+        .nav-login:hover {
+            color: var(--green);
+        }
+
+        .nav-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 14px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .nav-login {
+            overflow: hidden;
+            max-width: 150px;
+            color: #55706a;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .button {
+            display: inline-flex;
+            min-height: 42px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 15px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--green);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 800;
+            transition: transform .2s, background .2s, box-shadow .2s;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            background: var(--green-dark);
+            box-shadow: 0 8px 20px rgba(23, 109, 91, .16);
+        }
+
+        .button-light {
+            border: 1px solid #dbe8e0;
+            background: white;
+            color: var(--green);
+        }
+
+        .button-light:hover {
+            border-color: #b9d7c6;
+            background: #f7fbf8;
+        }
+
+        .menu-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white;
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        .dashboard {
+            width: min(1160px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 34px 0 62px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 13px;
+            color: #879791;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .breadcrumb svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 25px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 9px;
+            color: var(--green);
+            font-size: 10px;
+            font-weight: 850;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #79b894;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 38px);
+            line-height: 1.12;
+            letter-spacing: -.04em;
+            overflow-wrap: anywhere;
+        }
+
+        .hero p {
+            margin: 9px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .hero-actions svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 13px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card,
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: var(--white);
+            box-shadow: 0 8px 24px rgba(37, 83, 69, .04);
+        }
+
+        .stat-card {
+            min-width: 0;
+            padding: 17px 18px;
+        }
+
+        .stat-label {
+            color: #82918b;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            display: block;
+            margin-top: 9px;
+            color: var(--ink);
+            font-size: clamp(21px, 3vw, 27px);
+            font-weight: 850;
+            letter-spacing: -.04em;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-note {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .quick-overview {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 1fr;
+            gap: 13px;
+            margin-bottom: 30px;
+        }
+
+        .overview-card {
+            display: flex;
+            min-width: 0;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 1px solid #dcebe1;
+            border-radius: 10px;
+            background: linear-gradient(115deg, #edf7f0, #f5f9ec);
+        }
+
+        .overview-icon {
+            display: grid;
+            flex: 0 0 34px;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border: 1px solid #d5e8db;
+            border-radius: 9px;
+            background: white;
+            color: var(--green);
+        }
+
+        .overview-icon svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        .overview-label {
+            display: block;
+            margin: 1px 0 5px;
+            color: #75877f;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .overview-value {
+            font-size: 13px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .section {
+            margin-top: 27px;
+            scroll-margin-top: 94px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 18px;
+            letter-spacing: -.02em;
+        }
+
+        .section-heading p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .section-count {
+            flex: 0 0 auto;
+            color: #85938e;
+            font-size: 10px;
+        }
+
+        .panel {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .panel-inner {
+            padding: 17px;
+        }
+
+        .table-shell {
+            max-width: 100%;
+            overflow: auto;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-wrap table {
+            width: 100%;
+            font-size: 13px;
+        }
+
+        table.data-table,
+        .report-table,
+        .table-shell .table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #38544d;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .data-table th,
+        .report-table th,
+        .table-shell .table th {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--line);
+            background: #fbfcfb;
+            color: #81918b;
+            font-size: 9px;
+            font-weight: 850;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .data-table td,
+        .report-table td,
+        .table-shell .table td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--soft-line);
+            vertical-align: top;
+        }
+
+        .data-table tbody tr:last-child td,
+        .report-table tbody tr:last-child td,
+        .table-shell .table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .data-table tbody tr:hover,
+        .report-table tbody tr:hover,
+        .table-shell .table tbody tr:hover {
+            background: #fbfdfb;
+        }
+
+        .data-table td:first-child,
+        .report-table td:first-child,
+        .table-shell .table td:first-child {
+            color: var(--ink);
+            font-weight: 750;
+        }
+
+        .report-table,
+        .table-shell .table {
+            width: max-content;
+            min-width: 100%;
+        }
+
+        .report-table th,
+        .report-table td,
+        .table-shell .table th,
+        .table-shell .table td {
+            max-width: 360px;
+            overflow-wrap: anywhere;
+        }
+
+        .report-table thead th,
+        .table-shell .table thead th {
+            position: sticky;
+            z-index: 1;
+            top: 0;
+        }
+
+        .table-shell .table thead th {
+            background: #edf7f0;
+            color: #41655a;
+            font-size: 10px;
+            text-transform: none;
+        }
+
+        .table-shell .table tbody tr:nth-child(even) {
+            background: #fbfdfb;
+        }
+
+        .preview-stack {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0;
+        }
+
+        .preview-stack .section {
+            min-width: 0;
+            margin-top: 12px;
+        }
+
+        .preview-stack .section-heading {
+            margin-bottom: 9px;
+        }
+
+        .preview-stack .panel {
+            border-radius: 9px;
+        }
+
+        .empty-note {
+            padding: 21px;
+            border: 1px dashed #d8e5dd;
+            border-radius: 9px;
+            background: #fbfdfb;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .split-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .split-grid .section {
+            min-width: 0;
+            margin-top: 27px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: var(--mint);
+            color: #28715e;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .missing-cell {
+            min-width: 135px;
+        }
+
+        .missing-number {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+            color: #526b63;
+            font-size: 10px;
+        }
+
+        .progress {
+            display: block;
+            width: 100%;
+            height: 6px;
+            overflow: hidden;
+            appearance: none;
+            border: 0;
+            border-radius: 9px;
+            background: #edf2ee;
+        }
+
+        .progress::-webkit-progress-bar {
+            border-radius: 9px;
+            background: #edf2ee;
+        }
+
+        .progress::-webkit-progress-value {
+            border-radius: 9px;
+            background: #78b691;
+        }
+
+        .progress::-moz-progress-bar {
+            border-radius: 9px;
+            background: #78b691;
+        }
+
+        .value-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .value-chip {
+            max-width: 220px;
+            overflow: hidden;
+            padding: 5px 8px;
+            border: 1px solid #e4ede7;
+            border-radius: 6px;
+            background: #fbfdfb;
+            color: #526b63;
+            font-size: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .value-chip strong {
+            margin-left: 4px;
+            color: var(--green);
+        }
+
+        .warning-list {
+            display: grid;
+            gap: 8px;
+            margin: 0;
+            padding: 15px;
+            list-style: none;
+        }
+
+        .warning-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 11px 12px;
+            border: 1px solid #f0e6ca;
+            border-radius: 8px;
+            background: #fffaf0;
+            color: #756743;
+            font-size: 11px;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
+        }
+
+        .warning-icon {
+            display: grid;
+            flex: 0 0 18px;
+            width: 18px;
+            height: 18px;
+            place-items: center;
+            border-radius: 50%;
+            background: #fff0c9;
+            color: #9c7b2c;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .success-note {
+            margin: 15px;
+            padding: 13px 14px;
+            border: 1px solid #d8ebde;
+            border-radius: 8px;
+            background: #f1faf3;
+            color: #367452;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 18px 0;
+            border-top: 1px solid var(--line);
+            color: #8a9993;
+            font-size: 10px;
+        }
+
+        .footer-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #47655d;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .footer-version {
+            color: #8a9993;
+            font-size: 9px;
+            font-weight: 650;
+        }
+
+        .footer-brand .brand-mark {
+            width: 25px;
+            height: 25px;
+            border-radius: 7px;
+        }
+
+        .footer-brand .brand-mark svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .nav-links {
+                gap: 13px;
+                font-size: 10px;
+            }
+
+            .nav-actions {
+                gap: 9px;
+            }
+
+            .quick-overview {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .nav {
+                position: relative;
+            }
+
+            .menu-toggle {
+                display: grid;
+            }
+
+            .nav-links {
+                position: absolute;
+                z-index: 12;
+                top: 64px;
+                right: 0;
+                left: 0;
+                display: none;
+                align-items: stretch;
+                gap: 0;
+                padding: 7px 14px;
+                border: 1px solid var(--line);
+                border-radius: 9px;
+                background: white;
+                box-shadow: 0 15px 35px rgba(37, 83, 69, .12);
+            }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .nav-links a {
+                padding: 12px 5px;
+                border-bottom: 1px solid #f0f3f1;
+                font-size: 12px;
+            }
+
+            .nav-links a:last-child {
+                border-bottom: 0;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .quick-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .split-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .wrap,
+            .dashboard {
+                width: min(100% - 32px, 480px);
+            }
+
+            .site-header {
+                height: 68px;
+            }
+
+            .brand {
+                gap: 8px;
+                font-size: 16px;
+            }
+
+            .brand-mark {
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+            }
+
+            .nav-login {
+                display: none;
+            }
+
+            .nav-actions .button {
+                min-height: 38px;
+                padding: 0 11px;
+                font-size: 11px;
+            }
+
+            .dashboard {
+                padding-top: 25px;
+            }
+
+            .hero-actions {
+                width: 100%;
+            }
+
+            .hero-actions .button {
+                flex: 1;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-value {
+                font-size: 22px;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .panel-inner {
+                padding: 12px;
+            }
+
+            .data-table,
+            .report-table,
+            .table-shell .table {
+                font-size: 11px;
+            }
+
+            .data-table th,
+            .report-table th,
+            .data-table td,
+            .report-table td,
+            .table-shell .table th,
+            .table-shell .table td {
+                padding: 9px 10px;
+            }
+
+            .footer {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 9px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media print {
+            :root {
+                --paper: #fff;
+            }
+
+            .table-wrap {
+                overflow: visible;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            .site-header,
+            .hero-actions,
+            .footer {
+                display: none !important;
+            }
+
+            .dashboard {
+                width: 100%;
+                padding: 0;
+            }
+
+            .stat-card,
+            .panel {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            .section {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="nav wrap" aria-label="Main navigation">
+            <a class="brand" href="{% url 'home' %}" aria-label="Data Analyser home">
+                <span class="brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 18V6m0 12h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
+                Data Analyser
+            </a>
+
+            <div class="nav-links" id="navLinks">
+                <a href="#overview">Overview</a>
+                <a href="#previews">Data preview</a>
+                <a href="#columns">Columns</a>
+                <a href="#quality">Data quality</a>
+                <a href="#statistics">Statistics</a>
+            </div>
+
+            <div class="nav-actions">
+                {% if user.is_authenticated %}
+                <span class="nav-login">{{ user.username }}</span>
+                <a class="button button-light" href="{% url 'logout' %}">Log out</a>
+                {% else %}
+                <a class="nav-login" href="{% url 'login' %}">Log in</a>
+                <a class="button" href="{% url 'register' %}">Get started</a>
+                {% endif %}
+                <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation"
+                    aria-expanded="false" aria-controls="navLinks">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+                        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard">
+        <div class="breadcrumb">
+            <a href="{% url 'home' %}">Workspace</a>
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="m7 4 6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+            <span>Analysis report</span>
+        </div>
+
+        <section class="hero" id="overview">
+            <div>
+                <div class="eyebrow"><span class="eyebrow-dot"></span> Dataset analysis</div>
+                <h1>{{ dataset.name }}</h1>
+                <p>A clear overview of your dataset, its structure, and data quality.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="button button-light" href="{% url 'home' %}">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M12.5 4.5 7 10l5.5 5.5" stroke="currentColor" stroke-width="1.7"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Back to workspace
+                </a>
+                <button class="button" type="button" onclick="window.print()">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M6 7V3.5h8V7M6 14H4.5A1.5 1.5 0 0 1 3 12.5v-4A1.5 1.5 0 0 1 4.5 7h11A1.5 1.5 0 0 1 17 8.5v4a1.5 1.5 0 0 1-1.5 1.5H14M6 11.5h8v5H6v-5Z"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    Print report
+                </button>
+            </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Dataset summary">
+            <article class="stat-card">
+                <span class="stat-label">Rows</span>
+                <strong class="stat-value">{{ rows }}</strong>
+                <span class="stat-note">Records in this dataset</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Columns</span>
+                <strong class="stat-value">{{ cols }}</strong>
+                <span class="stat-note">Fields available to analyse</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Missing values</span>
+                <strong class="stat-value">{{ total_missing }}</strong>
+                <span class="stat-note">Across {{ total_cells }} total cells</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">Duplicate rows</span>
+                <strong class="stat-value">{{ duplicate_rows }}</strong>
+                <span class="stat-note">Repeated records detected</span>
+            </article>
+        </section>
+
+        <section class="quick-overview" aria-label="Additional dataset details">
+            <article class="overview-card">
+                <span class="overview-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.6" />
+                        <path d="M4 10h16M9 10v9m6-9v9" stroke="currentColor" stroke-width="1.4" />
+                    </svg>
+                </span>
+                <span><span class="overview-label">Dataset shape</span><span class="overview-value">{{ shape.0 }} rows × {{ shape.1 }} columns</span></span>
+            </article>
+            <article class="overview-card">
+                <span class="overview-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 3v18m5-14H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6" stroke="currentColor"
+                            stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <span><span class="overview-label">Memory usage</span><span class="overview-value">{{ memory_mb }} MB</span></span>
+            </article>
+            <article class="overview-card">
+                <span class="overview-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M5 5h14v14H5zM8 9h8m-8 3h8m-8 3h5" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </span>
+                <span><span class="overview-label">Total cells</span><span class="overview-value">{{ total_cells }}</span></span>
+            </article>
+        </section>
+
+        <section class="section" id="previews">
+            <div class="section-heading">
+                <div>
+                    <h2>Data preview</h2>
+                    <p>First and last records from the dataset.</p>
+                </div>
+            </div>
+            <div class="preview-stack">
+                <section class="section" aria-labelledby="headTitle">
+                    <div class="section-heading">
+                        <div><h2 id="headTitle">First rows</h2><p>Beginning of the dataset</p></div>
+                    </div>
+                    <div class="panel"><div class="table-wrap">{{ head|safe }}</div></div>
+                </section>
+                <section class="section" aria-labelledby="tailTitle">
+                    <div class="section-heading">
+                        <div><h2 id="tailTitle">Last rows</h2><p>End of the dataset</p></div>
+                    </div>
+                    <div class="panel"><div class="table-wrap">{{ tail|safe }}</div></div>
+                </section>
+            </div>
+        </section>
+
+        <section class="section" id="columns">
+            <div class="section-heading">
+                <div>
+                    <h2>Column profile</h2>
+                    <p>Every column, its detected data type, and distinct value count.</p>
+                </div>
+                <span class="section-count">{{ cols }} columns</span>
+            </div>
+            <div class="panel table-shell">
+                <table class="data-table">
+                    <thead><tr><th>Column</th><th>Data type</th><th>Distinct values</th></tr></thead>
+                    <tbody>
+                        {% for col, dtype in dtypes.items %}
+                        <tr>
+                            <td>{{ col }}</td>
+                            <td><span class="badge">{{ dtype }}</span></td>
+                            <td>{% for unique_col, count in unique_counts.items %}{% if unique_col == col %}{{ count }}{% endif %}{% endfor %}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3">No columns found in this dataset.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section" id="quality">
+            <div class="section-heading">
+                <div>
+                    <h2>Missing data</h2>
+                    <p>Missing value count and share for each column.</p>
+                </div>
+            </div>
+            <div class="panel table-shell">
+                <table class="data-table">
+                    <thead><tr><th>Column</th><th>Missing values</th><th>Missing percentage</th></tr></thead>
+                    <tbody>
+                        {% for col, count in missing_count.items %}
+                        <tr>
+                            <td>{{ col }}</td>
+                            <td>{{ count }}</td>
+                            <td class="missing-cell">
+                                {% for pct_col, pct in missing_pct.items %}
+                                {% if pct_col == col %}
+                                <div class="missing-number"><span>{{ pct }}%</span><span>missing</span></div>
+                                <progress class="progress" aria-label="{{ col }} missing values"
+                                    value="{{ pct }}" max="100">{{ pct }}%</progress>
+                                {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3">No missing-value data available.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section" id="statistics">
+            <div class="section-heading">
+                <div>
+                    <h2>Numeric statistics</h2>
+                    <p>Summary measures calculated for numeric columns.</p>
+                </div>
+            </div>
+            {% if describe %}
+            <div class="panel"><div class="table-wrap">{{ describe|safe }}</div></div>
+            {% else %}
+            <div class="empty-note">There are no numeric columns to summarize in this dataset.</div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <div><h2>Correlation matrix</h2><p>Pairwise correlation between numeric columns.</p></div>
+            </div>
+            {% if corr %}
+            <div class="panel"><div class="table-wrap">{{ corr|safe }}</div></div>
+            {% else %}
+            <div class="empty-note">A correlation matrix is not available because this dataset has no numeric columns.</div>
+            {% endif %}
+        </section>
+
+        <div class="split-grid">
+            <section class="section">
+                <div class="section-heading">
+                    <div><h2>Skewness</h2><p>Distribution asymmetry for numeric columns.</p></div>
+                </div>
+                {% if skew %}
+                <div class="panel table-shell">
+                    <table class="data-table">
+                        <thead><tr><th>Column</th><th>Skewness</th></tr></thead>
+                        <tbody>
+                            {% for col, value in skew.items %}
+                            <tr><td>{{ col }}</td><td>{{ value }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-note">No numeric skewness values to show.</div>
+                {% endif %}
+            </section>
+
+            <section class="section">
+                <div class="section-heading">
+                    <div><h2>Top category values</h2><p>Five most frequent values for each text column.</p></div>
+                </div>
+                {% if top_values %}
+                <div class="panel table-shell">
+                    <table class="data-table">
+                        <thead><tr><th>Column</th><th>Most frequent values</th></tr></thead>
+                        <tbody>
+                            {% for col, values in top_values.items %}
+                            <tr>
+                                <td>{{ col }}</td>
+                                <td>
+                                    <div class="value-list">
+                                        {% for value, count in values.items %}
+                                        <span class="value-chip">{{ value }}<strong>{{ count }}</strong></span>
+                                        {% empty %}
+                                        <span class="value-chip">No values</span>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-note">No categorical columns were detected.</div>
+                {% endif %}
+            </section>
+        </div>
+
+        <section class="section">
+            <div class="section-heading">
+                <div><h2>Potential outliers</h2><p>Values outside the 1.5× IQR range for numeric columns.</p></div>
+            </div>
+            {% if outliers %}
+            <div class="panel table-shell">
+                <table class="data-table">
+                    <thead><tr><th>Column</th><th>Outlier count</th><th>Share</th><th>Lower bound</th><th>Upper bound</th></tr></thead>
+                    <tbody>
+                        {% for col, details in outliers.items %}
+                        <tr>
+                            <td>{{ col }}</td>
+                            <td>{{ details.count }}</td>
+                            <td>{{ details.pct }}%</td>
+                            <td>{{ details.low }}</td>
+                            <td>{{ details.high }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-note">No numeric columns were available for outlier detection.</div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <div><h2>Date ranges</h2><p>Detected date-like columns and their observed ranges.</p></div>
+            </div>
+            {% if datetime_cols %}
+            <div class="panel table-shell">
+                <table class="data-table">
+                    <thead><tr><th>Column</th><th>Earliest date</th><th>Latest date</th><th>Range</th></tr></thead>
+                    <tbody>
+                        {% for col, details in datetime_cols.items %}
+                        <tr>
+                            <td>{{ col }}</td>
+                            <td>{{ details.min }}</td>
+                            <td>{{ details.max }}</td>
+                            <td>{{ details.range_days }} days</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-note">No date-like columns were detected.</div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <div><h2>Duplicate rows preview</h2><p>Up to 10 repeated records found in the dataset.</p></div>
+                <span class="section-count">{{ duplicate_rows }} duplicate rows</span>
+            </div>
+            {% if duplicate_rows %}
+            <div class="panel"><div class="table-wrap">{{ dup_preview|safe }}</div></div>
+            {% else %}
+            <div class="empty-note">No duplicate rows found.</div>
+            {% endif %}
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <div><h2>Data quality warnings</h2><p>Potential issues to review before using this dataset.</p></div>
+                <span class="section-count">{{ warnings|length }} warnings</span>
+            </div>
+            <div class="panel">
+                {% if warnings %}
+                <ul class="warning-list">
+                    {% for warning in warnings %}
+                    <li class="warning-item"><span class="warning-icon" aria-hidden="true">!</span><span>{{ warning }}</span></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="success-note">No data quality warnings were detected.</div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="wrap footer">
+        <a class="footer-brand" href="{% url 'home' %}">
+            <span class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 18V6m0 12h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+            Data Analyser <span class="footer-version">Version 6.1</span>
+        </a>
+        <span>Less time checking. More time understanding.</span>
+    </footer>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            const isOpen = navLinks.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', String(isOpen));
+            menuToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+        });
+
+        navLinks.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menuToggle.setAttribute('aria-label', 'Open navigation');
+            });
+        });
+    </script>
+</body>
+
+</html>

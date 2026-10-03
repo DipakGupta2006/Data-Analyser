@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f8fbf8">
+    <title>Log in | Data Analyser</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #173b38;
+            --muted: #6d817d;
+            --paper: #f8fbf8;
+            --green: #176d5b;
+            --green-dark: #105246;
+            --lime: #d8f05c;
+            --coral: #ff826a;
+            --line: #e6eeea;
+            --error: #b34235;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scrollbar-gutter: stable;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .wrap {
+            width: min(1160px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            height: 82px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 28px;
+        }
+
+        .brand {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 35px;
+            height: 35px;
+            place-items: center;
+            color: white;
+            background: var(--green);
+            border-radius: 11px;
+        }
+
+        .brand-mark svg {
+            width: 21px;
+            height: 21px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 34px;
+            color: #55706a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .nav-links a:hover,
+        .nav-login:hover {
+            color: var(--green);
+        }
+
+        .nav-actions {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .nav-login {
+            color: #55706a;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            min-height: 46px;
+            padding: 0 19px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--green);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            transition: transform .2s, background .2s, box-shadow .2s;
+        }
+
+        .button:hover {
+            background: var(--green-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(23, 109, 91, .18);
+        }
+
+        .button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .menu-toggle {
+            display: none;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: white;
+            color: var(--ink);
+        }
+
+        .page {
+            display: grid;
+            width: min(1160px, calc(100% - 48px));
+            grid-template-columns: minmax(360px, .9fr) 1.1fr;
+            align-items: start;
+            gap: 40px;
+            margin: 0 auto;
+            padding: 38px 0 64px;
+        }
+
+        .story-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 500px;
+            padding: 48px clamp(30px, 5vw, 68px);
+            border-radius: 12px;
+            background: #eaf5ee;
+        }
+
+        .story-panel::before {
+            position: absolute;
+            top: 27%;
+            left: -230px;
+            width: 470px;
+            height: 470px;
+            border: 1px solid rgba(23, 109, 91, .11);
+            border-radius: 50%;
+            box-shadow: 0 0 0 38px rgba(23, 109, 91, .025), 0 0 0 78px rgba(23, 109, 91, .02);
+            content: "";
+        }
+
+        .story-content {
+            position: relative;
+            z-index: 1;
+            max-width: 440px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .eyebrow-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--coral);
+            box-shadow: 0 0 0 4px #ffebe6;
+        }
+
+        h1 {
+            margin: 19px 0 15px;
+            font-size: clamp(40px, 5vw, 61px);
+            line-height: 1.05;
+            letter-spacing: 0;
+        }
+
+        h1 span {
+            position: relative;
+            z-index: 0;
+            white-space: nowrap;
+        }
+
+        h1 span::after {
+            position: absolute;
+            z-index: -1;
+            right: -3px;
+            bottom: 2px;
+            left: -3px;
+            height: 13px;
+            background: var(--lime);
+            content: "";
+            transform: rotate(-1deg);
+        }
+
+        .story-copy {
+            max-width: 390px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .benefits {
+            display: grid;
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #47675e;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .benefit-icon {
+            display: grid;
+            flex: 0 0 29px;
+            width: 29px;
+            height: 29px;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, .8);
+            color: var(--green);
+        }
+
+        .benefit-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .story-footer {
+            position: relative;
+            z-index: 1;
+            margin-top: 35px;
+            color: #81958b;
+            font-size: 10px;
+        }
+
+        .form-side {
+            display: flex;
+            justify-content: center;
+            margin-top: 22px;
+            padding: 38px clamp(24px, 4vw, 46px);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 16px 42px rgba(37, 83, 69, .07);
+        }
+
+        .form-shell {
+            width: min(100%, 440px);
+        }
+
+        .form-heading {
+            margin-bottom: 25px;
+        }
+
+        .form-heading h2 {
+            margin: 0 0 8px;
+            font-size: 29px;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .form-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.65;
+        }
+
+        .messages {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 17px;
+        }
+
+        .message,
+        .form-errors {
+            padding: 11px 13px;
+            border: 1px solid #f1d6cf;
+            border-radius: 7px;
+            background: #fff4f1;
+            color: var(--error);
+            font-size: 12px;
+        }
+
+        .form-errors {
+            margin-bottom: 16px;
+        }
+
+        .form-errors ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .fields {
+            display: grid;
+            gap: 17px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #34534d;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .field input {
+            display: block;
+            width: 100%;
+            height: 47px;
+            padding: 0 13px;
+            border: 1px solid #dce7e1;
+            border-radius: 7px;
+            outline: none;
+            background: white;
+            color: var(--ink);
+            font-size: 13px;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+        .field input:focus {
+            border-color: #56a78b;
+            box-shadow: 0 0 0 3px rgba(86, 167, 139, .13);
+        }
+
+        .field input[aria-invalid="true"] {
+            border-color: #d77a6b;
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 66px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            padding: 5px;
+            border: 0;
+            background: transparent;
+            color: var(--green);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 800;
+            transform: translateY(-50%);
+        }
+
+        .password-toggle:hover {
+            color: var(--green-dark);
+        }
+
+        .field-errors {
+            margin: 6px 0 0;
+            padding-left: 17px;
+            color: var(--error);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .submit-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            min-height: 49px;
+            margin-top: 21px;
+            border: 0;
+            border-radius: 7px;
+            background: var(--green);
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 850;
+            transition: background .18s, transform .18s;
+        }
+
+        .submit-button:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+        }
+
+        .submit-button svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        .account-prompt {
+            margin: 19px 0 0;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .account-prompt a {
+            color: var(--green);
+            font-weight: 850;
+        }
+
+        .account-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                grid-template-columns: minmax(285px, .82fr) 1.18fr;
+                gap: 25px;
+            }
+
+            .story-panel {
+                padding-right: 30px;
+                padding-left: 30px;
+            }
+
+            h1 {
+                font-size: 43px;
+            }
+        }
+
+        @media (max-width: 680px) {
+
+            .wrap,
+            .page {
+                width: min(100% - 34px, 480px);
+            }
+
+            .site-header {
+                height: 69px;
+            }
+
+            .menu-toggle {
+                display: grid;
+            }
+
+            .nav {
+                position: relative;
+                gap: 14px;
+            }
+
+            .nav-actions {
+                gap: 12px;
+            }
+
+            .nav-actions .nav-login {
+                display: none;
+            }
+
+            .nav-actions .button {
+                flex: 0 0 auto;
+                min-height: 40px;
+                padding: 0 12px;
+                white-space: nowrap;
+                font-size: 11px;
+            }
+
+            .nav-links {
+                position: absolute;
+                z-index: 5;
+                top: 54px;
+                right: 0;
+                left: 0;
+                display: none;
+                align-items: stretch;
+                gap: 0;
+                padding: 7px 14px;
+                border: 1px solid var(--line);
+                border-radius: 9px;
+                background: white;
+                box-shadow: 0 15px 35px rgba(37, 83, 69, .12);
+            }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .nav-links a {
+                padding: 13px 5px;
+                border-bottom: 1px solid #f0f3f1;
+            }
+
+            .nav-links a:last-child {
+                border: 0;
+            }
+
+            .page {
+                display: block;
+                padding-top: 20px;
+            }
+
+            .story-panel {
+                display: none;
+            }
+
+            .form-side {
+                margin-top: 0;
+                padding: 29px 22px;
+            }
+
+            .form-heading h2 {
+                font-size: 27px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .brand {
+                font-size: 16px;
+            }
+
+            .brand-mark {
+                width: 31px;
+                height: 31px;
+            }
+
+            .nav-actions .button {
+                padding: 0 9px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .nav {
+                gap: 7px;
+            }
+
+            .nav-actions {
+                gap: 7px;
+            }
+
+            .nav-actions .button {
+                gap: 5px;
+                padding: 0 7px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="nav wrap" aria-label="Main navigation">
+            <a class="brand" href="{% url 'landing' %}" aria-label="Data Analyser home">
+                <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 18V6m0 12h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg></span>
+                Data Analyser
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="{% url 'landing' %}#features">Features</a>
+                <a href="{% url 'landing' %}#how-it-works">How it works</a>
+                <a href="{% url 'landing' %}#quality">Data quality</a>
+            </div>
+            <div class="nav-actions">
+                <a class="nav-login" href="{% url 'login' %}">Log in</a>
+                <a class="button" href="{% url 'register' %}">Get started <svg viewBox="0 0 20 20" fill="none"
+                        aria-hidden="true">
+                        <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg></a>
+                <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation"
+                    aria-expanded="false" aria-controls="navLinks"><svg viewBox="0 0 24 24" width="20" height="20"
+                        fill="none" aria-hidden="true">
+                        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" />
+                    </svg></button>
+            </div>
+        </nav>
+    </header>
+    <main class="page">
+        <aside class="story-panel" aria-label="About Data Analyser">
+            <div class="story-content">
+                <div class="eyebrow"><span class="eyebrow-dot"></span> Welcome back</div>
+                <h1>Your data,<br><span>right where</span><br>you left it.</h1>
+                <p class="story-copy">Log in to continue working with your files and pick up where your analysis left
+                    off.</p>
+                <div class="benefits">
+                    <div class="benefit"><span class="benefit-icon"><svg viewBox="0 0 24 24" fill="none"
+                                aria-hidden="true">
+                                <path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg></span>Your uploaded files in one place</div>
+                    <div class="benefit"><span class="benefit-icon"><svg viewBox="0 0 24 24" fill="none"
+                                aria-hidden="true">
+                                <path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="1.8"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg></span>Clear reports, ready when you are</div>
+                </div>
+            </div>
+            <div class="story-footer">Less time checking. More time understanding.</div>
+        </aside>
+        <section class="form-side" aria-labelledby="formTitle">
+            <div class="form-shell">
+                <div class="form-heading">
+                    <h2 id="formTitle">Welcome back</h2>
+                    <p>Log in to your Data Analyser account.</p>
+                </div>
+                {% if messages %}
+                <div class="messages" role="status">{% for message in messages %}<div class="message">{{ message }}
+                    </div>{% endfor %}</div>
+                {% endif %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}
+                    </div>{% endif %}
+                    <div class="fields">
+                        {% for field in form %}
+                        <div class="field">
+                            {{ field.label_tag }}
+                            {% if field.name == 'password' %}
+                            <div class="password-wrap">
+                                {{ field }}
+                                <button class="password-toggle" type="button"
+                                    data-password-toggle="{{ field.id_for_label }}"
+                                    aria-label="Show password">Show</button>
+                            </div>
+                            {% else %}
+                            {{ field }}
+                            {% endif %}
+                            {% if field.errors %}<ul class="field-errors" role="alert">{% for error in field.errors %}
+                                <li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="submit-button" type="submit">Log in <svg viewBox="0 0 20 20" fill="none"
+                            aria-hidden="true">
+                            <path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg></button>
+                </form>
+                <p class="account-prompt">New to Data Analyser? <a href="{% url 'register' %}">Create an account</a></p>
+            </div>
+        </section>
+    </main>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        menuToggle.addEventListener('click', () => {
+            const isOpen = navLinks.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', String(isOpen));
+            menuToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+        });
+        navLinks.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+        document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const passwordInput = document.getElementById(button.dataset.passwordToggle);
+                const shouldShow = passwordInput.type === 'password';
+                passwordInput.type = shouldShow ? 'text' : 'password';
+                button.textContent = shouldShow ? 'Hide' : 'Show';
+                button.setAttribute('aria-label', `${shouldShow ? 'Hide' : 'Show'} password`);
+            });
+        });
+        document.querySelectorAll('.field input').forEach((input) => {
+            input.setAttribute('aria-invalid', String(input.closest('.field').querySelector('.field-errors') !== null));
+        });
+    </script>
+</body>
+
+</html>

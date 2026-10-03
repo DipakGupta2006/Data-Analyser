@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f8fbf8">
+	<meta name="description" content="Understand your CSV, XLSX and JSON files in one click with clear statistics, data quality checks and useful warnings.">
+	<title>Data Analyser | Know your data, instantly</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--ink: #173b38;
+			--muted: #6d817d;
+			--paper: #f8fbf8;
+			--white: #fff;
+			--green: #176d5b;
+			--green-dark: #105246;
+			--mint: #dff3e8;
+			--lime: #d8f05c;
+			--coral: #ff826a;
+			--yellow: #f8d975;
+			--line: #e6eeea;
+			--shadow: 0 28px 70px rgba(37, 83, 69, .13);
+		}
+
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+		body {
+			margin: 0;
+			background: var(--paper);
+			color: var(--ink);
+			font-family: "Avenir Next", Avenir, "Trebuchet MS", sans-serif;
+			-webkit-font-smoothing: antialiased;
+		}
+		a { color: inherit; text-decoration: none; }
+		button, a { -webkit-tap-highlight-color: transparent; }
+		button { font: inherit; }
+		.wrap { width: min(1160px, calc(100% - 48px)); margin: 0 auto; }
+
+		.site-header { height: 82px; display: flex; align-items: center; }
+		.nav { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+		.brand { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 10px; white-space: nowrap; font-size: 19px; font-weight: 800; letter-spacing: 0; }
+		.brand-mark { display: grid; width: 35px; height: 35px; place-items: center; color: white; background: var(--green); border-radius: 11px; }
+		.brand-mark svg { width: 21px; height: 21px; }
+		.nav-links { display: flex; align-items: center; gap: 34px; color: #55706a; font-size: 13px; font-weight: 700; }
+		.nav-links a:hover, .text-link:hover { color: var(--green); }
+		.nav-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 20px; font-size: 13px; font-weight: 800; }
+		.nav-login { color: #55706a; }
+		.button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 46px; padding: 0 19px; border: 0; border-radius: 8px; background: var(--green); color: white; font-size: 13px; font-weight: 800; transition: transform .2s, background .2s, box-shadow .2s; }
+		.button:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(23, 109, 91, .18); }
+		.button svg { width: 16px; height: 16px; }
+		.menu-toggle { display: none; width: 42px; height: 42px; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--ink); }
+
+		.hero { position: relative; overflow: hidden; padding: 63px 0 84px; }
+		.hero::before { position: absolute; z-index: -1; content: ""; width: 560px; height: 560px; top: -185px; right: -110px; border-radius: 50%; background: radial-gradient(circle, #e3f3d8 0, rgba(227, 243, 216, .45) 47%, transparent 70%); }
+		.hero-grid { display: grid; grid-template-columns: 1fr 1.02fr; align-items: center; gap: 68px; }
+		.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-size: 11px; font-weight: 900; letter-spacing: 0; text-transform: uppercase; }
+		.eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); box-shadow: 0 0 0 4px #ffebe6; }
+		h1 { max-width: 540px; margin: 20px 0 17px; font-size: clamp(43px, 5.4vw, 68px); line-height: 1.04; letter-spacing: 0; font-weight: 850; }
+		h1 span { position: relative; z-index: 0; white-space: nowrap; }
+		h1 span::after { position: absolute; z-index: -1; right: -5px; bottom: 3px; left: -4px; height: 16px; content: ""; background: var(--lime); transform: rotate(-1deg); }
+		.hero-copy { max-width: 440px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.8; }
+		.hero-actions { display: flex; align-items: center; gap: 21px; margin-top: 29px; }
+		.hero-actions .button { min-height: 51px; padding: 0 22px; }
+		.text-link { display: inline-flex; align-items: center; gap: 7px; color: #45635d; font-size: 13px; font-weight: 800; }
+		.text-link svg { width: 16px; height: 16px; }
+		.file-types { display: flex; align-items: center; gap: 9px; margin-top: 27px; color: #81938f; font-size: 11px; font-weight: 700; }
+		.file-type { padding: 6px 9px; border: 1px solid #e2ebe6; border-radius: 5px; background: rgba(255,255,255,.68); color: #55716a; }
+
+		.preview-area { position: relative; padding: 19px 10px 18px 22px; }
+		.preview-card { position: relative; z-index: 1; overflow: hidden; border: 1px solid #e9efeb; border-radius: 13px; background: white; box-shadow: var(--shadow); transform: rotate(1deg); animation: settle .75s ease both; }
+		.preview-top { display: flex; align-items: center; justify-content: space-between; padding: 17px 21px; border-bottom: 1px solid #eef2ef; }
+		.preview-file { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800; }
+		.csv-icon { display: grid; width: 32px; height: 34px; place-items: center; border-radius: 7px; background: #e4f5e9; color: var(--green); }
+		.csv-icon svg { width: 17px; height: 17px; }
+		.preview-file small { display: block; margin-top: 3px; color: #91a09b; font-size: 10px; font-weight: 600; }
+		.ready { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border-radius: 20px; background: #eaf7ee; color: #327d4e; font-size: 9px; font-weight: 900; }
+		.ready::before { width: 6px; height: 6px; border-radius: 50%; background: #53b873; content: ""; }
+		.preview-content { padding: 19px 21px 20px; }
+		.preview-heading { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 13px; }
+		.preview-heading strong { font-size: 13px; }
+		.preview-heading span { color: #9aa9a4; font-size: 10px; }
+		.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+		.stat { padding: 12px 13px; border: 1px solid #edf1ee; border-radius: 8px; }
+		.stat-label { color: #879792; font-size: 9px; font-weight: 700; }
+		.stat-value { margin-top: 6px; font-size: 20px; font-weight: 850; }
+		.stat-value small { color: #95a39f; font-size: 9px; font-weight: 600; }
+		.quality { display: flex; align-items: center; gap: 12px; margin-top: 13px; padding: 12px 14px; border-radius: 8px; background: #eff8f1; }
+		.quality-ring { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: conic-gradient(#58ad70 0 91%, #d8eadc 91%); color: var(--green-dark); font-size: 12px; font-weight: 900; }
+		.quality-ring::before { position: absolute; width: 32px; height: 32px; border-radius: 50%; background: #eff8f1; content: ""; }
+		.quality-ring span { position: relative; }
+		.quality-copy strong { display: block; font-size: 11px; }
+		.quality-copy small { display: block; margin-top: 4px; color: #7b9285; font-size: 9px; }
+		.quality-check { margin-left: auto; color: #4b9b64; }
+		.quality-check svg { width: 19px; height: 19px; }
+		.chart-row { display: grid; grid-template-columns: 1fr 118px; gap: 13px; margin-top: 14px; }
+		.chart-box, .mini-box { min-height: 90px; padding: 11px 12px; border: 1px solid #edf1ee; border-radius: 8px; }
+		.box-title { color: #667e76; font-size: 9px; font-weight: 800; }
+		.bars { display: flex; align-items: end; gap: 7px; height: 43px; margin-top: 7px; }
+		.bars i { flex: 1; min-width: 7px; border-radius: 3px 3px 0 0; background: #a9dbc0; }
+		.bars i:nth-child(2n) { background: #64b28d; }
+		.bars i:nth-child(3n) { background: #d5ed79; }
+		.mini-box .box-title { display: flex; justify-content: space-between; }
+		.mini-value { margin-top: 13px; color: var(--green); font-size: 20px; font-weight: 850; }
+		.mini-value small { color: #94a49c; font-size: 9px; font-weight: 600; }
+		.float-note { position: absolute; z-index: 2; display: flex; align-items: center; gap: 9px; padding: 11px 14px; border: 1px solid #edf0e7; border-radius: 9px; background: white; box-shadow: 0 12px 30px rgba(43, 78, 61, .12); font-size: 10px; font-weight: 800; animation: float-in .7s .25s both; }
+		.float-note svg { width: 18px; height: 18px; }
+		.note-duplicates { top: 5px; right: -8px; color: #bd694e; }
+		.note-dates { bottom: 1px; left: -1px; color: #397857; }
+		.note-duplicates svg { color: var(--coral); }
+
+		.proof { padding: 23px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; }
+		.proof-inner { display: flex; justify-content: space-between; align-items: center; gap: 22px; }
+		.proof-lead { color: #82918c; font-size: 11px; font-weight: 700; }
+		.proof-item { display: flex; align-items: center; gap: 8px; color: #48675e; font-size: 11px; font-weight: 800; white-space: nowrap; }
+		.proof-item svg { width: 17px; height: 17px; color: #57a87b; }
+
+		.section { padding: 91px 0; }
+		.section-heading { max-width: 570px; margin: 0 auto 41px; text-align: center; }
+		.section-heading h2 { margin: 12px 0 11px; font-size: 36px; line-height: 1.15; letter-spacing: 0; }
+		.section-heading p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+		.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+		.feature { min-height: 184px; padding: 22px 22px 20px; border: 1px solid var(--line); border-radius: 9px; background: #fff; transition: transform .2s, box-shadow .2s; }
+		.feature:hover { transform: translateY(-4px); box-shadow: 0 14px 35px rgba(38, 77, 63, .08); }
+		.feature-icon { display: grid; width: 39px; height: 39px; place-items: center; border-radius: 10px; }
+		.feature-icon svg { width: 20px; height: 20px; }
+		.icon-mint { background: #e2f5e9; color: #2d8a5c; }
+		.icon-yellow { background: #fff4d7; color: #b98219; }
+		.icon-coral { background: #ffebe5; color: #c95f49; }
+		.icon-blue { background: #e7f2f8; color: #397d9d; }
+		.icon-lime { background: #f0f6d7; color: #718e29; }
+		.icon-pink { background: #fbeaf0; color: #ad5473; }
+		.feature h3 { margin: 16px 0 7px; font-size: 14px; }
+		.feature p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+		.how-section { padding: 74px 0 82px; background: #eaf5ee; }
+		.how-grid { display: grid; grid-template-columns: .85fr 1.15fr; align-items: center; gap: 80px; }
+		.how-copy h2 { max-width: 380px; margin: 13px 0; font-size: 36px; line-height: 1.17; letter-spacing: 0; }
+		.how-copy p { max-width: 380px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+		.steps { display: grid; gap: 0; }
+		.step { display: grid; grid-template-columns: 42px 1fr; gap: 15px; padding: 17px 0; border-bottom: 1px solid #d7e7dc; }
+		.step:last-child { border-bottom: 0; }
+		.step-number { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid #c9e0d0; border-radius: 50%; background: white; color: var(--green); font-size: 12px; font-weight: 900; }
+		.step h3 { margin: 2px 0 5px; font-size: 13px; }
+		.step p { margin: 0; color: #71877d; font-size: 11px; line-height: 1.65; }
+
+		.cta-section { padding: 76px 0; }
+		.cta-band { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 25px; padding: 38px 44px; border-radius: 12px; background: var(--green); color: white; }
+		.cta-band::after { position: absolute; top: -100px; right: 20%; width: 280px; height: 280px; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; box-shadow: 0 0 0 35px rgba(255,255,255,.04), 0 0 0 70px rgba(255,255,255,.03); content: ""; }
+		.cta-band h2 { position: relative; z-index: 1; max-width: 470px; margin: 0 0 8px; font-size: 29px; line-height: 1.2; letter-spacing: 0; }
+		.cta-band p { position: relative; z-index: 1; margin: 0; color: #c9e5d9; font-size: 12px; }
+		.cta-band .button { position: relative; z-index: 1; flex: 0 0 auto; background: var(--lime); color: #25452e; }
+		.cta-band .button:hover { background: #e5f78e; }
+
+		footer { padding: 21px 0; border-top: 1px solid var(--line); }
+		.footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 15px; color: #869691; font-size: 10px; }
+		.footer-brand { display: flex; align-items: center; gap: 8px; color: #46645c; font-size: 11px; font-weight: 800; }
+		.footer-version { color: #869691; font-size: 9px; font-weight: 650; }
+		.footer-brand .brand-mark { width: 25px; height: 25px; border-radius: 7px; }
+		.footer-brand .brand-mark svg { width: 15px; height: 15px; }
+		.footer-links { display: flex; gap: 18px; }
+		.footer-links a:hover { color: var(--green); }
+		.reveal { opacity: 0; transform: translateY(15px); transition: opacity .55s ease, transform .55s ease; }
+		.reveal.is-visible { opacity: 1; transform: translateY(0); }
+		@keyframes settle { from { opacity: 0; transform: translateY(12px) rotate(1deg); } to { opacity: 1; transform: translateY(0) rotate(1deg); } }
+		@keyframes float-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+
+		@media (max-width: 900px) {
+			.hero-grid { gap: 28px; grid-template-columns: .92fr 1.08fr; }
+			.hero { padding-top: 45px; }
+			h1 { font-size: 54px; }
+			.how-grid { gap: 42px; }
+			.proof-inner { flex-wrap: wrap; justify-content: center; }
+			.proof-lead { width: 100%; text-align: center; }
+		}
+		@media (max-width: 680px) {
+			.wrap { width: min(100% - 34px, 480px); }
+			.site-header { height: 69px; }
+			.menu-toggle { display: grid; }
+			.nav { position: relative; gap: 14px; }
+			.nav-actions { gap: 12px; }
+			.nav-actions .nav-login { display: none; }
+			.nav-actions .button { flex: 0 0 auto; min-height: 40px; padding: 0 12px; white-space: nowrap; font-size: 11px; }
+			.nav-links { position: absolute; z-index: 5; top: 54px; right: 0; left: 0; display: none; align-items: stretch; gap: 0; padding: 7px 14px; border: 1px solid var(--line); border-radius: 9px; background: white; box-shadow: 0 15px 35px rgba(37, 83, 69, .12); }
+			.nav-links.open { display: flex; flex-direction: column; }
+			.nav-links a { padding: 13px 5px; border-bottom: 1px solid #f0f3f1; }
+			.nav-links a:last-child { border: 0; }
+			.hero { padding: 41px 0 56px; }
+			.hero-grid { grid-template-columns: 1fr; gap: 34px; }
+			.hero-copy { font-size: 14px; }
+			h1 { max-width: 460px; margin-top: 16px; font-size: clamp(44px, 12vw, 57px); }
+			.preview-area { margin: 0 2px; padding: 15px 3px 13px; }
+			.preview-card { transform: none; }
+			.note-duplicates { top: -1px; right: -6px; }
+			.note-dates { bottom: -1px; left: -5px; }
+			.proof { padding: 19px 0; }
+			.proof-inner { gap: 14px 19px; }
+			.proof-item { font-size: 10px; }
+			.section { padding: 66px 0; }
+			.section-heading { margin-bottom: 28px; }
+			.section-heading h2, .how-copy h2 { font-size: 30px; }
+			.features { grid-template-columns: 1fr 1fr; gap: 9px; }
+			.feature { min-height: 190px; padding: 16px 14px; }
+			.feature h3 { margin-top: 13px; font-size: 13px; }
+			.feature p { font-size: 11px; }
+			.how-section { padding: 62px 0; }
+			.how-grid { grid-template-columns: 1fr; gap: 28px; }
+			.cta-section { padding: 55px 0; }
+			.cta-band { align-items: flex-start; flex-direction: column; padding: 29px 24px; }
+			.cta-band h2 { font-size: 25px; }
+			.footer-inner { flex-wrap: wrap; }
+			.footer-links { gap: 12px; }
+		}
+		@media (max-width: 390px) {
+			.brand { font-size: 16px; }
+			.brand-mark { width: 31px; height: 31px; }
+			.nav-actions .button { padding: 0 9px; }
+			.hero-actions { gap: 14px; }
+			.hero-actions .button { padding: 0 14px; }
+			.stat-grid { gap: 5px; }
+			.stat { padding: 10px 8px; }
+			.stat-value { font-size: 17px; }
+			.chart-row { grid-template-columns: 1fr 100px; }
+			.features { grid-template-columns: 1fr; }
+			.feature { min-height: auto; }
+		}
+		@media (max-width: 360px) {
+			.nav { gap: 7px; }
+			.nav-actions { gap: 7px; }
+			.nav-actions .button { gap: 5px; padding: 0 7px; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+			.reveal { opacity: 1; transform: none; }
+		}
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<nav class="nav wrap" aria-label="Main navigation">
+			<a class="brand" href="#top" aria-label="Data Analyser home">
+				<span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18V6m0 12h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+				Data Analyser
+			</a>
+			<div class="nav-links" id="navLinks">
+				<a href="#features">Features</a>
+				<a href="#how-it-works">How it works</a>
+				<a href="#quality">Data quality</a>
+			</div>
+			<div class="nav-actions">
+				<a class="nav-login" href="{% url 'login' %}">Log in</a>
+				<a class="button" href="{% url 'register' %}">Get started <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+				<button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="navLinks"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+			</div>
+		</nav>
+	</header>
+
+	<main id="top">
+		<section class="hero">
+			<div class="wrap hero-grid">
+				<div class="hero-text">
+					<div class="eyebrow"><span class="eyebrow-dot"></span> Your data, decoded</div>
+					<h1>Open a file.<br><span>Understand</span> your data.</h1>
+					<p class="hero-copy">CSV, Excel, or JSON? Get the full story in one click: what looks good, what is missing, and what needs your attention.</p>
+					<div class="hero-actions">
+						<a class="button" href="{% url 'register' %}">Create your free account <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+						<a class="text-link" href="#features">Explore the features <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12m-5-5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+					</div>
+					<div class="file-types" aria-label="Supported file types"><span>Works with</span><span class="file-type">CSV</span><span class="file-type">XLSX</span><span class="file-type">JSON</span></div>
+				</div>
+
+				<div class="preview-area" aria-label="Example data analysis report">
+					<div class="float-note note-duplicates"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 8h10v12H8zM6 16H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg> 12 duplicate rows</div>
+					<div class="preview-card">
+						<div class="preview-top">
+							<div class="preview-file"><span class="csv-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h8l5 5v13H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7"/><path d="M14 3v5h5M8 13h8M8 17h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><span>customer_orders.csv<small>Analysis report · just now</small></span></div>
+							<span class="ready">ANALYZED</span>
+						</div>
+						<div class="preview-content">
+							<div class="preview-heading"><strong>At a glance</strong><span>Full report <b aria-hidden="true">↗</b></span></div>
+							<div class="stat-grid">
+								<div class="stat"><div class="stat-label">ROWS</div><div class="stat-value">8,420</div></div>
+								<div class="stat"><div class="stat-label">COLUMNS</div><div class="stat-value">12</div></div>
+								<div class="stat"><div class="stat-label">FILE SIZE</div><div class="stat-value">2.4 <small>MB</small></div></div>
+							</div>
+							<div class="quality" id="quality">
+								<div class="quality-ring"><span>91</span></div>
+								<div class="quality-copy"><strong>Data quality score</strong><small>Looking good · 3 things to review</small></div>
+								<span class="quality-check"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+							</div>
+							<div class="chart-row">
+								<div class="chart-box"><div class="box-title">Monthly revenue</div><div class="bars" aria-hidden="true"><i style="height:38%"></i><i style="height:56%"></i><i style="height:45%"></i><i style="height:75%"></i><i style="height:62%"></i><i style="height:92%"></i><i style="height:72%"></i><i style="height:100%"></i></div></div>
+								<div class="mini-box"><div class="box-title">AVG. ORDER <span>↗</span></div><div class="mini-value">₹1,240 <small>+8.2%</small></div></div>
+							</div>
+						</div>
+					</div>
+					<div class="float-note note-dates"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 3v4M8 3v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Date range found</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="proof" aria-label="Analysis capabilities">
+			<div class="wrap proof-inner">
+				<span class="proof-lead">No spreadsheet detective work needed</span>
+				<span class="proof-item"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Instant file summary</span>
+				<span class="proof-item"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Column-by-column detail</span>
+				<span class="proof-item"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Clear quality warnings</span>
+			</div>
+		</section>
+
+		<section class="section" id="features">
+			<div class="wrap">
+				<div class="section-heading reveal">
+					<div class="eyebrow"><span class="eyebrow-dot"></span> The whole picture</div>
+					<h2>Every column has a story.</h2>
+					<p>One detailed report that brings important patterns, gaps, and red flags into clear view.</p>
+				</div>
+				<div class="features">
+					<article class="feature reveal"><span class="feature-icon icon-mint"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h3>Quick overview</h3><p>Rows, columns, file size, and duplicate rows. Understand the scale of your file at a glance.</p></article>
+					<article class="feature reveal"><span class="feature-icon icon-yellow"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.8"/><circle cx="15" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/></svg></span><h3>Column-wise details</h3><p>Data type, missing values, unique count, and sample values. Get a complete profile of every column.</p></article>
+					<article class="feature reveal"><span class="feature-icon icon-coral"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 19h16M6 16l4-5 3 2 5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 6h2v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h3>Numbers that matter</h3><p>See the min, max, mean, median, standard deviation, and outliers for numeric columns.</p></article>
+					<article class="feature reveal"><span class="feature-icon icon-blue"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15h3v2H7zm5-6h3v8h-3zm5-4h3v12h-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><h3>Patterns, surfaced</h3><p>Explore top categorical values, date ranges, and correlations between numeric columns.</p></article>
+					<article class="feature reveal"><span class="feature-icon icon-lime"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 4.5 6v5.4c0 4.2 3.1 7.8 7.5 9.6 4.4-1.8 7.5-5.4 7.5-9.6V6L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h3>Warnings that help</h3><p>Find blank columns, mixed types, numbers stored as text, extra spaces, and duplicate column names.</p></article>
+					<article class="feature reveal"><span class="feature-icon icon-pink"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/></svg></span><h3>One clear score</h3><p>A data quality score from 0 to 100 shows whether your data is ready or needs cleanup.</p></article>
+				</div>
+			</div>
+		</section>
+
+		<section class="how-section" id="how-it-works">
+			<div class="wrap how-grid">
+				<div class="how-copy reveal"><div class="eyebrow"><span class="eyebrow-dot"></span> Just three steps</div><h2>From upload to insight. Simple.</h2><p>No formulas or manual checking. Upload your file and let the report do the work.</p></div>
+				<div class="steps reveal">
+					<article class="step"><span class="step-number">01</span><div><h3>Create an account</h3><p>Sign up to get started with your personal workspace.</p></div></article>
+					<article class="step"><span class="step-number">02</span><div><h3>Upload a file</h3><p>Add a CSV, XLSX, or JSON file. Your uploads are visible only in your account.</p></div></article>
+					<article class="step"><span class="step-number">03</span><div><h3>Click Analyze</h3><p>Get a detailed report, data quality score, and useful warnings in one place.</p></div></article>
+				</div>
+			</div>
+		</section>
+
+		<section class="cta-section">
+			<div class="wrap">
+				<div class="cta-band reveal">
+					<div><h2>Stop guessing. Understand your next file.</h2><p>Create an account and get the full picture of your data.</p></div>
+					<a class="button" href="{% url 'register' %}">Get started <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer>
+		<div class="wrap footer-inner">
+			<a class="footer-brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 18V6m0 12h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Data Analyser <span class="footer-version">Version 6.1</span></a>
+			<span>Less time checking. More time understanding.</span>
+			<div class="footer-links"><a href="{% url 'login' %}">Log in</a><a href="{% url 'register' %}">Create account</a></div>
+		</div>
+	</footer>
+
+	<script>
+		const menuToggle = document.getElementById('menuToggle');
+		const navLinks = document.getElementById('navLinks');
+
+		menuToggle.addEventListener('click', () => {
+			const isOpen = navLinks.classList.toggle('open');
+			menuToggle.setAttribute('aria-expanded', String(isOpen));
+			menuToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+		});
+
+		navLinks.querySelectorAll('a').forEach((link) => {
+			link.addEventListener('click', () => {
+				navLinks.classList.remove('open');
+				menuToggle.setAttribute('aria-expanded', 'false');
+				menuToggle.setAttribute('aria-label', 'Open navigation');
+			});
+		});
+
+		const revealItems = document.querySelectorAll('.reveal');
+		if ('IntersectionObserver' in window) {
+			const observer = new IntersectionObserver((entries, activeObserver) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('is-visible');
+						activeObserver.unobserve(entry.target);
+					}
+				});
+			}, { threshold: 0.12 });
+			revealItems.forEach((item) => observer.observe(item));
+		} else {
+			revealItems.forEach((item) => item.classList.add('is-visible'));
+		}
+	</script>
+</body>
+</html>
