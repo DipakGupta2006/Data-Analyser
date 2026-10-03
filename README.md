@@ -13,13 +13,37 @@ Data Analyser is a Django web app that turns a raw CSV, Excel or JSON file into 
 
 ## 📸 Screenshots
 
+### Landing & Workspace
+
 | Landing page | Workspace |
 |---|---|
-| ![Landing](docs/screenshots/01-landing.png) | ![Workspace](docs/screenshots/02-workspace.png) |
+| ![Landing page](docs/screenshots/01-landing.png) | ![Workspace](docs/screenshots/02-workspace.png) |
 
-| Analysis report | Statistics |
+### Data Preview
+
+![Data preview](docs/screenshots/03-preview.png)
+
+### Analysis Report
+
+**Overview**
+
+![Report overview](docs/screenshots/04-report-overview.png)
+
+| Data preview (first & last rows) | Columns |
 |---|---|
-| ![Report overview](docs/screenshots/03-report-overview.png) | ![Statistics](docs/screenshots/04-report-statistics.png) |
+| ![Report data preview](docs/screenshots/05-report-data-preview.png) | ![Columns](docs/screenshots/06-report-columns.png) |
+
+| Missing values | Numeric statistics & correlation |
+|---|---|
+| ![Missing values](docs/screenshots/07-report-missing-values.png) | ![Statistics](docs/screenshots/08-report-statistics.png) |
+
+| Skewness & top categories | Outliers, datetime & duplicates |
+|---|---|
+| ![Skewness and categories](docs/screenshots/09-report-skew-categories.png) | ![Outliers and duplicates](docs/screenshots/10-report-outliers-duplicates.png) |
+
+**Data quality warnings**
+
+![Warnings](docs/screenshots/11-report-warnings.png)
 
 ---
 
